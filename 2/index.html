@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>伤害排行</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-image: url('bg.jpeg'); /* 设置背景图 */
+            background-size: cover; /* 背景图大小覆盖整个页面 */
+            background-attachment: fixed; /* 背景固定不滚动 */
+            background-position: bottom; /* 背景图位置在底部 */
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.9); /* 背景颜色，添加透明度 */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px; /* 添加圆角边框 */
+        }
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        table th {
+            background-color: #007bff;
+            color: #fff;
+        }
+        footer {
+            background-color: #666;
+            color: #fff;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>伤害排行</h1>
+    <p>初次进入请在 <a href="http://123.249.82.206:3001/">这里</a> 录入您的UID信息</p>
+    <p>默认只显示前30名数据，31名及之后的数据将会被隐藏</p>
+    <table>
+        <thead>
+            <tr>
+                <th>UID</th>
+                <th>MAX值</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <footer>
+        本页面由Morax怀揣着热爱编写
+    </footer>
+    <script>
+        async function fetchAndDisplayData() {
+            try {
+                const response = await fetch('http://123.249.82.206:3004/fetchData'); // 向后端请求数据
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    const tableBody = document.getElementById('tableBody');
+                    
+                    // 对数据按 MAX 值从大到小排序
+                    data.sort((a, b) => b.max_value - a.max_value);
+
+                    // 添加一个计数器
+                    let counter = 0;
+                    
+                    // 循环遍历数据并将其添加到表格中
+                    data.forEach(item => {
+                        if (counter < 30) {
+                            const row = tableBody.insertRow();
+                            const cell1 = row.insertCell(0);
+                            const cell2 = row.insertCell(1);
+                            cell1.innerText = item.uid;
+                            cell2.innerText = item.max_value;
+                            counter++;
+                        } else {
+                            // 如果计数器达到30，停止循环
+                            return;
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('获取数据时出错：', error);
+            }
+        }
+
+        fetchAndDisplayData(); // 页面加载后获取和显示数据
+    </script>
+</body>
+</html>
