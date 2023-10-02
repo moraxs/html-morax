@@ -9,8 +9,7 @@
             }
         });
     }
-
-</script>
+    </script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,6 +50,17 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
         }
+        .popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 999; /* 确保弹窗显示在其他元素上方 */
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +72,8 @@
     <div id="result">
         <p>您的UID为 <span id="uidValue"></span>，最高伤害为 <span id="maxValue"></span></p>
     </div>
+
+    <div id="popup" class="popup"></div>
 
     <script>
         function sendRequest() {
@@ -105,6 +117,16 @@
                                             }
                                         });
                                     }
+                                    // 显示弹窗
+                                    const popup = document.getElementById("popup");
+                                    popup.innerText = "Database has been written.";
+                                    popup.style.display = "block";
+                                    popup.style.backgroundColor = "#229954 ";
+                                    // 隔一段时间后隐藏弹窗，例如3秒后
+                                    setTimeout(function() {
+                                        popup.style.display = "none";
+                                    }, 3000); // 3秒后隐藏
+                                    
                                     console.log('数据写入成功');
                                 } else {
                                     // 数据写入失败的处理
@@ -117,13 +139,52 @@
                                             }
                                         });
                                     }
+                                    // 显示不同的弹窗消息
+                                    const popup = document.getElementById("popup");
+                                    popup.innerText = "Database connection timeout.";
+                                    popup.style.backgroundColor = "#ff0000"; // 设置为红色背景，表示失败
+                                    popup.style.display = "block";
                                     console.log('数据写入失败');
                                 }
                             })
-                            .catch(error => console.error(error));
+                            .catch(error => {
+                                // 数据写入失败的处理
+                                if ("Notification" in window) {
+                                    Notification.requestPermission().then(function(permission) {
+                                        if (permission === "granted") {
+                                            const errorNotification = new Notification("数据库写入失败", {
+                                                body: "请检查您的UID或服务后端",
+                                            });
+                                        }
+                                    });
+                                }
+                                // 显示不同的弹窗消息
+                                const popup = document.getElementById("popup");
+                                popup.innerText = "Database connection timeout.";
+                                popup.style.backgroundColor = "#ff0000"; // 设置为红色背景，表示失败
+                                popup.style.display = "block";
+                                console.error(error);
+                            });
                         }
                     })
-                    .catch(error => console.error(error));
+                    .catch(error => {
+                        // 数据获取失败的处理
+                        if ("Notification" in window) {
+                            Notification.requestPermission().then(function(permission) {
+                                if (permission === "granted") {
+                                    const errorNotification = new Notification("数据获取失败", {
+                                        body: "请检查您的UID或服务后端",
+                                    });
+                                }
+                            });
+                        }
+                        // 显示不同的弹窗消息
+                        const popup = document.getElementById("popup");
+                        popup.innerText = "Database connection timeout.";
+                        popup.style.backgroundColor = "#ff0000"; // 设置为红色背景，表示失败
+                        popup.style.display = "block";
+                        console.error(error);
+                    });
             }
         }
     </script>

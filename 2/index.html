@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="伤害排行页面">
+    <meta name="keywords" content="伤害排行, 游戏, 数据">
     <title>伤害排行</title>
     
     <style>
@@ -44,18 +46,22 @@
     </style>
 </head>
 <body>
-    <h1>伤害排行</h1>
-    <p>初次进入请在 <a href="http://123.249.82.206:3001/">这里</a> 录入您的UID信息</p>
-    <p>默认只显示前30名数据，31名及之后的数据将会被隐藏</p>
-    <table>
-        <thead>
-            <tr>
-                <th>UID</th>
-                <th>MAX值</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
+    <header>
+        <h1>伤害排行</h1>
+    </header>
+    <main>
+        <p>初次进入请在 <a href="http://123.249.82.206:3001/">这里</a> 录入您的UID信息</p>
+        <p>默认只显示前30名数据，31名及之后的数据将会被隐藏</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>UID</th>
+                    <th>MAX值</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </main>
 
     <footer>
         本页面由Morax怀揣着热爱编写
@@ -65,30 +71,33 @@
             try {
                 const response = await fetch('http://123.249.82.206:3004/fetchData'); // 向后端请求数据
                 const data = await response.json();
-                
-                if (data && data.length > 0) {
-                    const tableBody = document.getElementById('tableBody');
-                    
-                    // 对数据按 MAX 值从大到小排序
-                    data.sort((a, b) => b.max_value - a.max_value);
 
-                    // 添加一个计数器
-                    let counter = 0;
-                    
-                    // 循环遍历数据并将其添加到表格中
+                if (data && data.length > 0) {
+                    // 创建一个 Map 用于存储每个 UID 对应的最大值
+                    const maxValuesMap = new Map();
+
+                    // 遍历数据，过滤相同 UID 的数据，保留最大值
                     data.forEach(item => {
-                        if (counter < 30) {
-                            const row = tableBody.insertRow();
-                            const cell1 = row.insertCell(0);
-                            const cell2 = row.insertCell(1);
-                            cell1.innerText = item.uid;
-                            cell2.innerText = item.max_value;
-                            counter++;
-                        } else {
-                            // 如果计数器达到30，停止循环
-                            return;
+                        const uid = item.uid;
+                        const max = item.max_value;
+
+                        if (!maxValuesMap.has(uid) || max > maxValuesMap.get(uid)) {
+                            maxValuesMap.set(uid, max);
                         }
                     });
+
+                    // 将 Map 转换为数组并按 max_value 降序排序
+                    const sortedData = Array.from(maxValuesMap).sort((a, b) => b[1] - a[1]);
+
+                    // 将排序后的数据添加到表格
+                    const tableBody = document.getElementById('tableBody');
+                    for (const [uid, max] of sortedData) {
+                        const row = tableBody.insertRow();
+                        const cell1 = row.insertCell(0);
+                        const cell2 = row.insertCell(1);
+                        cell1.innerText = uid;
+                        cell2.innerText = max;
+                    }
                 }
             } catch (error) {
                 console.error('获取数据时出错：', error);
