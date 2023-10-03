@@ -1,17 +1,1 @@
-node版本 14.0以上
-pgsql相关 host:localhost 用户名:admin 数据库名:testsql 密码:qwaszx1233
-npm install express
-npm install pg-promise
-npm install cors
 
-本目录执行
-node server.js 
-node api.js
-node html.js
-
-进入2文件夹执行
-node html.js
-
-
-基本逻辑: 输入UID并点击查询后，会向123.249.82.206:3002/UID发送请求，将得到的UID与MAX值呈现在页面上，同时向http://123.249.82.206:3004/writeData发送请求来写入pgsq数据库，当访问伤害排行页面时，会请求123.249.82.206:3004/fetchData路由，服务器会从数据库中检索数据（UID和max_value），然后将这些数据以JSON格式返回给客户端。
-页面进行表格绘制，按照max值进行降序排序
